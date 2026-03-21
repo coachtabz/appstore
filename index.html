@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeStep | Premium Sneaker Store</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --card-bg: #ffffff;
+            --text: #111111;
+            --accent: #ff3b30;
+            --wa: #25d366;
+            --fb: #0084ff;
+            --gray: #f4f4f4;
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            margin: 0; background: #fff; color: var(--text); 
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* HEADER & SEARCH */
+        header { 
+            padding: 15px 4% 10px; border-bottom: 1px solid #eee; 
+            position: sticky; top: 0; background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(10px); z-index: 1000;
+        }
+        .logo { font-weight: 900; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-bottom: 12px; }
+        
+        .search-container { position: relative; margin-bottom: 15px; }
+        .search-bar {
+            width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px;
+            border: 1px solid #eee; background: var(--gray); font-size: 14px;
+            box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        .search-bar:focus { border-color: #000; background: #fff; box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; }
+
+        .menu-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .menu-scroll::-webkit-scrollbar { display: none; }
+        .menu-item { 
+            background: #fff; padding: 8px 18px; border-radius: 20px; 
+            font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid #eee;
+            transition: 0.2s; white-space: nowrap;
+        }
+        .menu-item.active { background: #000; color: #fff; border-color: #000; }
+
+        /* GRID SYSTEM (5-Col Desktop, 2-Col Mobile) */
+        .container { padding: 10px; max-width: 1400px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        @media (max-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: repeat(4, 1fr); gap: 8px; } }
+
+        /* PRODUCT CARDS */
+        .card { 
+            background: var(--card-bg); border-radius: 12px; overflow: hidden; 
+            position: relative; border: 1px solid #f0f0f0; cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card:active { transform: scale(0.97); }
+        .img-holder { position: relative; aspect-ratio: 1/1; background: #f9f9f9; overflow: hidden; }
+        .card img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s; }
+        
+        .sold-tag { position: absolute; inset: 0; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(2px); }
+        .sold-text { background: #000; color: #fff; padding: 4px 8px; font-size: 9px; font-weight: 800; border-radius: 4px; }
+        .badge { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 4px; font-size: 9px; font-weight: 800; background: var(--accent); color: #fff; z-index: 5; }
+
+        .info { padding: 10px; }
+        .item-name { font-size: 12px; font-weight: 600; color: #444; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .new-p { font-weight: 800; font-size: 14px; color: #000; }
+
+        /* PREMIUM PRODUCT MODAL */
+        .modal { 
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: white; border-radius: 24px; z-index: 4000; width: 92%; max-width: 420px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+        }
+        .modal-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+        .modal-details { padding: 25px; }
+        .modal-cat { font-size: 10px; text-transform: uppercase; color: #999; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .modal-title { font-size: 24px; font-weight: 900; margin-bottom: 5px; line-height: 1.2; }
+        .modal-price { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 25px; }
+        
+        .order-btn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 16px; border-radius: 16px; border: none;
+            margin-bottom: 12px; font-weight: 800; font-size: 14px; cursor: pointer;
+            text-decoration: none; transition: 0.3s;
+        }
+        .btn-wa { background: #e7f9ee; color: #1fb354; }
+        .btn-fb { background: #e7f3ff; color: #0084ff; }
+        .btn-wa:hover { background: var(--wa); color: #fff; }
+        .btn-fb:hover { background: var(--fb); color: #fff; }
+
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3900; }
+        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 4001; font-size: 18px; }
+
+        /* ADMIN UI */
+        .admin-actions { position: absolute; top: 5px; right: 5px; display: none; flex-direction: column; gap: 4px; z-index: 25; }
+        .adm-mode .admin-actions { display: flex; }
+        .adm-btn { font-size: 8px; padding: 6px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: 800; }
+        .admin-form { padding: 25px; }
+        input[type="text"], input[type="number"], select, input[type="password"] { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #eee; border-radius: 12px; font-size: 15px; box-sizing: border-box; background: var(--gray); outline: none; }
+        .btn-black { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: 800; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body id="bodyTag">
+
+    <header>
+        <div class="logo">LUXESTEP</div>
+        
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-bar" placeholder="search" oninput="handleSearch()">
+        </div>
+
+        <div class="menu-scroll">
+            <button class="menu-item active" onclick="filterCat('All', this)">All Items</button>
+            <button class="menu-item" onclick="filterCat('Shoes', this)">Shoes</button>
+            <button class="menu-item" onclick="filterCat('Shirt', this)">Shirt</button>
+            <button class="menu-item" onclick="filterCat('T-Shirt', this)">T-Shirt</button>
+            <button class="menu-item admin-nav" onclick="showModal('loginModal')" style="color:#aaa; font-weight:400; border-style:dashed;">Admin 🔒</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="productGrid" class="grid"></div>
+        
+        <div style="text-align: center; margin-top: 50px; padding-bottom: 100px;">
+            <button id="addBtn" onclick="showModal('adminModal')" style="display:none; margin: 20px auto; padding: 14px 30px; border-radius: 30px; border: none; background: #000; color: #fff; font-weight: 800; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">+ ADD NEW PRODUCT</button>
+            <button id="logoutBtn" onclick="logoutAdmin()" style="display:none; margin: 10px auto; color: #ff3b30; background: none; border: none; font-size: 12px; cursor: pointer; font-weight: 700; text-decoration: underline;">LOGOUT ADMIN</button>
+            <p style="font-size: 10px; color: #ccc; margin-top: 20px;">© 2026 LUXESTEP STORE</p>
+        </div>
+    </div>
+
+    <div id="viewModal" class="modal">
+        <button class="close-modal-btn" onclick="closeModal()">×</button>
+        <div id="viewContent"></div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="admin-form">
+            <h3 style="text-align: center; margin-top: 0;">Admin Access</h3>
+            <input type="password" id="adminPass" placeholder="Enter Password">
+            <button class="btn-black" onclick="checkLogin()">LOGIN</button>
+            <button onclick="closeModal()" style="background:none; border:none; width:100%; margin-top:15px; color:#999; font-size:12px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal">
+        <div class="admin-form">
+            <h3 style="text-align: center; margin-top: 0;">Add Product</h3>
+            <input type="text" id="pName" placeholder="Product Name">
+            <input type="number" id="pPrice" placeholder="Price (₱)">
+            <select id="pCat">
+                <option value="Shoes">Shoes</option>
+                <option value="Shirt">Shirt</option>
+                <option value="T-Shirt">T-Shirt</option>
+            </select>
+            <input type="file" id="pFile" accept="image/*" style="background:none; padding:10px 0;">
+            <button class="btn-black" id="uploadBtn" onclick="uploadItem()">POST TO STORE</button>
+            <button onclick="closeModal()" style="background:none; border:none; width:100%; margin-top:15px; color:#999; font-size:12px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="closeModal()"></div>
+
+    <script>
+        const API_KEY = "496a17374c90fa8256924b705f324e7b"; 
+        let shopData = JSON.parse(localStorage.getItem('luxe_v10')) || [];
+        let isAdmin = localStorage.getItem('isLuxeAdmin') === 'true'; 
+        let currentFilter = "All";
+        let searchQuery = "";
+
+        // Para sa "Back Button" sa phone, sirado ra ang modal
+        window.onpopstate = function() { closeModal(); };
+
+        function render() {
+            const grid = document.getElementById('productGrid');
+            const body = document.getElementById('bodyTag');
+            
+            isAdmin ? body.classList.add('adm-mode') : body.classList.remove('adm-mode');
+            document.getElementById('addBtn').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('logoutBtn').style.display = isAdmin ? 'block' : 'none';
+
+            let filtered = shopData;
+            if(currentFilter !== "All") filtered = filtered.filter(p => p.cat === currentFilter);
+            if(searchQuery) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 80px 20px; color:#bbb; font-size:14px;">Walay nakit-an nga "${searchQuery}"...</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map((p) => {
+                const realIdx = shopData.indexOf(p);
+                return `
+                <div class="card" onclick="viewProduct(${realIdx})">
+                    <div class="admin-actions">
+                        <button class="adm-btn" style="background:#333" onclick="event.stopPropagation(); toggleSold(${realIdx})">${p.sold ? 'RESTOCK' : 'SOLD'}</button>
+                        <button class="adm-btn" style="background:#ff3b30" onclick="event.stopPropagation(); deleteItem(${realIdx})">DEL</button>
+                    </div>
+                    <div class="img-holder">
+                        ${p.sold ? '<div class="sold-tag"><span class="sold-text">SOLD OUT</span></div>' : '<div class="badge">NEW</div>'}
+                        <img src="${p.img}" alt="product" loading="lazy">
+                    </div>
+                    <div class="info">
+                        <div class="item-name">${p.name}</div>
+                        <div class="new-p">₱${Number(p.price).toLocaleString()}</div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            render();
+        }
+
+        function viewProduct(idx) {
+            const p = shopData[idx];
+            const content = document.getElementById('viewContent');
+            content.innerHTML = `
+                <img src="${p.img}" class="modal-img">
+                <div class="modal-details">
+                    <div class="modal-cat">${p.cat}</div>
+                    <div class="modal-title">${p.name}</div>
+                    <div class="modal-price">₱${Number(p.price).toLocaleString()}</div>
+                    
+                    <div style="margin-top: 10px;">
+                        ${p.sold ? '<button class="order-btn" style="background:#f0f0f0; color:#aaa; cursor:default;">OUT OF STOCK</button>' : `
+                            <a href="https://wa.me/639085123194?text=Boss! I am interested in: ${p.name}" class="order-btn btn-wa">
+                                ORDER VIA WHATSAPP
+                            </a>
+                            <a href="https://m.me/61577519363119" class="order-btn btn-fb">
+                                MESSAGE ON MESSENGER
+                            </a>
+                        `}
+                    </div>
+                </div>
+            `;
+            showModal('viewModal');
+        }
+
+        function checkLogin() {
+            if(document.getElementById('adminPass').value === "admin") {
+                isAdmin = true;
+                localStorage.setItem('isLuxeAdmin', 'true');
+                closeModal();
+                render();
+            } else { alert("Wrong password!"); }
+        }
+
+        function logoutAdmin() {
+            isAdmin = false;
+            localStorage.setItem('isLuxeAdmin', 'false');
+            render();
+        }
+
+        async function uploadItem() {
+            const file = document.getElementById('pFile').files[0];
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const cat = document.getElementById('pCat').value;
+            const btn = document.getElementById('uploadBtn');
+
+            if(!file || !name || !price) return alert("Please fill all fields!");
+            btn.disabled = true; btn.innerText = "Uploading to Store...";
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, { method: "POST", body: formData });
+                const data = await res.json();
+                if(data.success) {
+                    shopData.push({ name, price, cat, img: data.data.url, sold: false });
+                    save(); closeModal();
+                    // Reset form
+                    document.getElementById('pName').value = "";
+                    document.getElementById('pPrice').value = "";
+                }
+            } catch(e) { alert("Upload error. Check internet."); }
+            finally { btn.disabled = false; btn.innerText = "POST TO STORE"; }
+        }
+
+        function toggleSold(idx) { shopData[idx].sold = !shopData[idx].sold; save(); }
+        function deleteItem(idx) { if(confirm("I-delete jud ni nimo, bai?")) { shopData.splice(idx, 1); save(); } }
+        
+        function filterCat(cat, el) {
+            currentFilter = cat;
+            document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            render();
+        }
+
+        function save() { localStorage.setItem('luxe_v10', JSON.stringify(shopData)); render(); }
+        
+        function showModal(id) { 
+            document.getElementById(id).style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
+            window.history.pushState({modal: true}, ""); // Fix sa back button
+        }
+        
+        function closeModal() { 
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById('overlay').style.display = 'none'; 
+            // Dili nato i-render() para dili mo-refresh ang scroll position
+        }
+
+        render();
+    </script>
+</body>
+              </html>
+              
